@@ -36,7 +36,7 @@ def launch_game():
 	try:
 		# Implicit wait for the username input appear on the webpage
 		nickName = WebDriverWait(chrome, 10).until(
-			EC.presence_of_element_located((By.XPATH,'/html/body/div[2]/div[3]/form/div[2]/input'))
+			EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.pages > div.setNickname.page > form > div.line > input"))
 		)
 		nickName.clear() # We clear because there is a default guest username
 		nickName.send_keys("BoomBot") # UserName, DEFAULT='BoomBot', /!\ CAN BE CHANGE IF YOU WANT
@@ -155,8 +155,15 @@ def launch_game():
 			say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
 			say.send_keys(syllabe)
 			say.send_keys(Keys.RETURN)
-			print("It works")
+			print("It sends")
 
+		except ElementNotInteractableException:
+			print("to long to start")
+			# Display of the error label
+			ERRORLabel = Label(boomWindow,text = "The game took to long to start, try again when someone is waiting.",bg="#403831",font=("Arial",10),fg="red")
+			ERRORLabel.pack(side="top")
+			ERRORLabel.after(5000,ERRORLabel.destroy)
+			return -1 # we return -1 to stop the program
 		except NoSuchWindowException: # Exeption if the player has closed the window
 			print("window closed")
 			# Display of the error label
