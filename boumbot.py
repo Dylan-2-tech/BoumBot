@@ -18,10 +18,18 @@ from tkinter import ttk
 # function that will launch the game
 def launch_game():
 	code = entry_code.get() # On récupère le code de la partie que l'on veut rejoindre
+	# Check if the code is correct
+	if len(code) != 4:
+		wrongLabel = Label(boomWindow,text = "You have entered a wrong party code (EX: ABCD).",bg="#403831",font=("Arial",10),fg="red")
+		wrongLabel.pack(side="top")
+		wrongLabel.after(2000,wrongLabel.destroy)
+		return -1
+
 	options = Options()
 	chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 	 
-	chrome.get(f'https://jklm.fun/{code}') # Ouverture d'une page chrome avec l'url de la partie
+	# Launching of a chrome webpage with the url, /!\ IF THE CODE IS FOR AN OLD PARTY THE ERROR WILL BE SPOTTED AT LINE 80--------------------------------
+	chrome.get(f'https://jklm.fun/{code}') 
 
 	# Etape de la connexion du bot avec son pseudo 'BoomBot
 	try:
@@ -33,11 +41,17 @@ def launch_game():
 		nickName.send_keys("BoomBot") # Pseudo du Bot /!\ Peut être modifié si vous voulez faire une petite blague à vos amis
 		nickName.send_keys(Keys.RETURN)
 	except ElementNotInteractableException: # Exceptions qui signal si le programme n'à pas réussi à trouver le input 
-		print("Cannot find the input")
+		print("input not found")
+		ERRORLabel = Label(boomWindow,text = "Input not found, try again.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
 		chrome.close()
 		return -1 # we return -1 to stop the program
-	except NoSuchWindowException: # Exception si le joueur a fermé la fenêtre du jeu
-		print("You have closed the window")
+	except NoSuchWindowException: # Exception if the player has closed the window
+		print("window closed")
+		ERRORLabel = Label(boomWindow,text = "You have closed the window.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
 	# Si la page charge correctement alors on poursuis
@@ -47,17 +61,24 @@ def launch_game():
 			EC.presence_of_element_located((By.CLASS_NAME, "game"))
 		)
 		print("it works, step game div") # Confirmation de la présence de la div game
-	except NoSuchElementException: # Esceptions si on ne trouve pas l'élément
-		print("Cant find the game div")
+	except NoSuchElementException: # Exception if the page took to long to load
+		print("too long to load")
+		ERRORLabel = Label(boomWindow,text = "The page took to long to load, try again.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
 		chrome.close()
 		return -1 # we return -1 to stop the program
-	except NoSuchWindowException: # Exception si le joueur a fermé la fenêtre du jeu
-		print("You have closed the window")
+	except NoSuchWindowException: # Exception if the player has closed the window
+		print("window closed")
+		ERRORLabel = Label(boomWindow,text = "You have closed the window.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
 
 	time.sleep(2)
 	"""
+
 	Comme le Jeu se déroule dans un Iframe, j'ai besoin de switcher 
 	la selection des elements sur cet Iframe car ils n'existent pas
 	dans le html par défaut.
@@ -67,8 +88,21 @@ def launch_game():
 
 	J'ai donc besoin de localiser le Iframe puis de le switch
 	"""
-	iframe = chrome.find_element(By.XPATH,'/html/body/div[2]/div[4]/div[1]/iframe')
-	chrome.switch_to.frame(iframe)
+	try:
+		iframe = chrome.find_element(By.XPATH,'/html/body/div[2]/div[4]/div[1]/iframe')
+		chrome.switch_to.frame(iframe) # Switching
+	except NoSuchElementException: # THIS ERROR HAPPEN WHEN THE CODE OF THE PARTY IS FOR AN OLD PARTY
+		print("old party")
+		ERRORLabel = Label(boomWindow,text = "The code you have entered is for an old party, please try again.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
+		return -1 # we return -1 to stop the program
+	except NoSuchWindowException: # Eception if the player has closed the window
+		print("window closed")
+		ERRORLabel = Label(boomWindow,text = "You have closed the window.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
+		return -1 # we return -1 to stop the program
 
 	time.sleep(2)
 
@@ -78,12 +112,18 @@ def launch_game():
 			EC.presence_of_element_located((By.XPATH,"/html/body/div[2]/div[3]/div[1]/div[1]/button"))
 		)
 		join.click() # We click on the button to join
-	except NoSuchElementException:
-		print("Cannot find the join Button")
+	except NoSuchElementException: # exception if the program has not find the join button
+		print("join not found")
+		ERRORLabel = Label(boomWindow,text = "join button not found, try again.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
 		chrome.close()
 		return -1 # we return -1 to stop the program
-	except NoSuchWindowException:
-		print("You have closed the window")
+	except NoSuchWindowException: # Exeption if the player has closed the window
+		print("window closed")
+		ERRORLabel = Label(boomWindow,text = "You have closed the window.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
 	# Once we have joined the game, we wait for the game to start
@@ -101,8 +141,11 @@ def launch_game():
 			dire.send_keys(Keys.RETURN)
 			dire.perform()
 			print("It works")
-		except NoSuchWindowException: # Exception si le joueur a fermé la fenêtre
-			print("You have closed the window")
+		except NoSuchWindowException: # Exeption if the player has closed the window
+			print("window closed")
+			ERRORLabel = Label(boomWindow,text = "You have closed the window.",bg="#403831",font=("Arial",10),fg="red")
+			ERRORLabel.pack(side="top")
+			ERRORLabel.after(5000,ERRORLabel.destroy)
 			return -1 # we return -1 to stop the program
 
 		time.sleep(10) # On attend 10 secondes avant de renvoyer un autre texte
@@ -112,7 +155,7 @@ def launch_game():
 # Creation of the main game page
 boomWindow = Tk()
 boomWindow.title("BoumWindow")
-boomWindow.geometry("500x500")
+boomWindow.geometry("500x400")
 boomWindow["bg"] = "#403831"
 
 # Creation of the title label  
@@ -132,6 +175,6 @@ btnGetCode.pack(pady=30)
 
 # Création du bouton qui ferme la fenetre
 btnQuit = Button(boomWindow,text="CLOSE", command = boomWindow.destroy)
-btnQuit.pack(pady=100)
+btnQuit.pack(pady=20)
 
 boomWindow.mainloop()
