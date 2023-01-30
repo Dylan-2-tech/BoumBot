@@ -144,18 +144,23 @@ def launch_game():
 	# Once we have joined the game, we wait for the game to start
 	time.sleep(17) # We wait 15sec for the game + 2sec to secure the loading for those who have bad connection
 	
+	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
+	
 	# While loop that will send the word every 10 seconds
 	val = 0
 	while val < 12: # It'll loop during 2 mins because it wait 10 sec 12 times => 10*12 = 120s = 2m
 		try:
-			# Location of the Div where the syllable is
-			syllabe = chrome.find_element(By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div').text
+			if say.is_displayed(): # if its True it means that its the turn of the bot to play otherwise if its false
+				# Location of the Div where the syllable is
+				syllable = chrome.find_element(By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div').text
+				
+				# When we have the syllable, we send it to the webpage
+				say.send_keys(syllable)
+				say.send_keys(Keys.RETURN)
+				print("It sends the syllable :", syllable)
 			
-			# When we have the syllabe, we send it to the webpage
-			say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
-			say.send_keys(syllabe)
-			say.send_keys(Keys.RETURN)
-			print("It sends")
+			else:
+				print("It's not the turn of the bot")
 
 		except ElementNotInteractableException:
 			print("to long to start")
@@ -164,6 +169,7 @@ def launch_game():
 			ERRORLabel.pack(side="top")
 			ERRORLabel.after(5000,ERRORLabel.destroy)
 			return -1 # we return -1 to stop the program
+
 		except NoSuchWindowException: # Exeption if the player has closed the window
 			print("window closed")
 			# Display of the error label
@@ -202,3 +208,14 @@ btnQuit = Button(boomWindow,text="CLOSE", command = boomWindow.destroy)
 btnQuit.pack(pady=20)
 
 boomWindow.mainloop()
+
+
+"""
+		except ElementNotInteractableException:
+			print("to long to start")
+			# Display of the error label
+			ERRORLabel = Label(boomWindow,text = "The game took to long to start, try again when someone is waiting.",bg="#403831",font=("Arial",10),fg="red")
+			ERRORLabel.pack(side="top")
+			ERRORLabel.after(5000,ERRORLabel.destroy)
+			return -1 # we return -1 to stop the program
+		"""
