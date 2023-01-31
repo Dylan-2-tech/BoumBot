@@ -13,7 +13,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from tkinter import *
 from tkinter import ttk
+import json
 
+# Function to search a word
+def search_word(data,syllable,ind):
+	if syllable in data.keys():
+		return data[syllable][ind]
+	else:
+		return False
 
 # function that will launch the game
 def launch_game():
@@ -31,6 +38,8 @@ def launch_game():
 	 
 	# Chrome webpage launch with the url, /!\ IF THE CODE IS FOR AN OLD PARTY THE ERROR WILL BE SPOTTED AT LINE 101--------------------------------
 	chrome.get(f'https://jklm.fun/{code}') 
+	
+	time.sleep(1)
 
 	# Step of connecting the bot with the username used in line 42
 	try:
@@ -145,22 +154,41 @@ def launch_game():
 	time.sleep(17) # We wait 15sec for the game + 2sec to secure the loading for those who have bad connection
 	
 	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
-	
+	with open("../test.json") as f: # We open the file that contains the words
+		data = json.load(f) # We load it
+
+	syllableOfGame = []
 	# While loop that will send the word every 10 seconds
+
+	winnerDiv = chrome.find_element(By.XPATH,"/html/body/div[2]/div[2]/div[2]/div[3]/div/div[2]")
+
 	val = 0
-	while val < 12: # It'll loop during 2 mins because it wait 10 sec 12 times => 10*12 = 120s = 2m
+
+	winner = False
+
+	while not winner: # While the winner is not displayed we continue
 		try:
 			if say.is_displayed(): # if its True it means that its the turn of the bot to play otherwise if its false
 				# Location of the Div where the syllable is
 				syllable = chrome.find_element(By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div').text
-				
+				syllable = syllable.lower()
+
 				# When we have the syllable, we send it to the webpage
-				say.send_keys(syllable)
-				say.send_keys(Keys.RETURN)
-				print("It sends the syllable :", syllable)
+				word = search_word(data,syllable,val)
+				if word == False:
+					if syllable not in syllableOfGame:
+						syllableOfGame.append(syllable)
+					say.send_keys("not found")
+					say.send_keys(Keys.RETURN)
+				else:
+					say.send_keys(word)
+					say.send_keys(Keys.RETURN)
+					val += 1
+					print("It sends the word", word)
 			
 			else:
 				print("It's not the turn of the bot")
+			winner = winnerDiv.is_displayed()
 
 		except ElementNotInteractableException:
 			print("to long to start")
@@ -178,8 +206,13 @@ def launch_game():
 			ERRORLabel.after(5000,ERRORLabel.destroy)
 			return -1 # we return -1 to stop the program
 
-		time.sleep(10) # We wait 10 second between each word 
-		val += 1 # We increments to get avoid a infinite loop
+		time.sleep(2) # We wait 2 second between each word 
+	print("End of the program")
+	f.close()
+
+	with open("../syllable_of_game.txt","a") as f:
+		for i in range(len(syllableOfGame)):
+			f.write(syllableOfGame[i]+"\n")
 
 # Tkinter part
 # Creation of the main game page
@@ -209,13 +242,3 @@ btnQuit.pack(pady=20)
 
 boomWindow.mainloop()
 
-
-"""
-		except ElementNotInteractableException:
-			print("to long to start")
-			# Display of the error label
-			ERRORLabel = Label(boomWindow,text = "The game took to long to start, try again when someone is waiting.",bg="#403831",font=("Arial",10),fg="red")
-			ERRORLabel.pack(side="top")
-			ERRORLabel.after(5000,ERRORLabel.destroy)
-			return -1 # we return -1 to stop the program
-		"""
