@@ -15,12 +15,103 @@ from tkinter import *
 from tkinter import ttk
 import json
 
-# Function to search a word
-def search_word(data,syllable,ind):
-	if syllable in data.keys():
-		return data[syllable][ind]
-	else:
-		return False
+
+# Function that return the word entered in args without any accent
+def no_accent_char(char):
+    table_correspondance = {192 : 65,
+                            193 : 65,
+                            194 : 65,
+                            195 : 65,
+                            196 : 65,
+                            197 : 65,
+                            198 : 65,
+                            199 : 67,
+                            200 : 69,
+                            201 : 69,
+                            202 : 69,
+                            203 : 69,
+                            204 : 73,
+                            205 : 73,
+                            206 : 73,
+                            207 : 73,
+                            208 : 68,
+                            209 : 78,
+                            210 : 79,
+                            211 : 79,
+                            212 : 79,
+                            213 : 79,
+                            214 : 79,
+                            216 : 79,
+                            217 : 85,
+                            218 : 85,
+                            219 : 85,
+                            220 : 85,
+                            221 : 89,
+                            224 : 97,
+                            225 : 97,
+                            226 : 97,
+                            227 : 97,
+                            228 : 97,
+                            229 : 97,
+                            230 : 97,
+                            231 : 99,
+                            232 : 101,
+                            233 : 101,
+                            234 : 101,
+                            235 : 101,
+                            236 : 105,
+                            237 : 105,
+                            238 : 105,
+                            239 : 105,
+                            240 : 111,
+                            241 : 110,
+                            242 : 111,
+                            243 : 111,
+                            244 : 111,
+                            245 : 111,
+                            246 : 111,
+                            248 : 111,
+                            249 : 117,
+                            250 : 117,
+                            251 : 117,
+                            252 : 117,
+                            253 : 121
+                            
+        
+    }
+
+    if 192 <= ord(char) <= 214 or 216 <= ord(char) <= 253:
+        return chr(table_correspondance[ord(char)])
+    else:
+        return char
+
+    return new_string
+
+# Function that return true if the word was already given and false otherwise
+def word_already_given(word,lowag):
+    
+    for i in range(len(lowag)):
+        if lowag[i] == word:
+            return True
+
+    return False
+
+# Function that return the word with the syllables asks into it
+def first_word(list_of_word,LOW_already_given,syllable):
+
+    found = False
+    ind = 0
+    lenLOW = len(list_of_word)
+
+    while not found and ind < lenLOW:
+        found = syllable in list_of_word[ind]
+        if found and word_already_given(list_of_word[ind],LOW_already_given):
+            found = False
+        ind += 1
+
+    LOW_already_given.append(list_of_word[ind-1])
+    return list_of_word[ind-1]
+
 
 # function that will launch the game
 def launch_game():
@@ -150,22 +241,31 @@ def launch_game():
 		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
-	# Once we have joined the game, we wait for the game to start
-	time.sleep(17) # We wait 15sec for the game + 2sec to secure the loading for those who have bad connection
-	
+	# We search the input where the word needs to be entered 
 	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
-	with open("../test.json") as f: # We open the file that contains the words
-		data = json.load(f) # We load it
 
-	syllableOfGame = []
-	# While loop that will send the word every 10 seconds
+	# We open the txt files who contains the list of words
+	with open("liste_francais.txt") as f:
+		words = [line.strip() for line in f]
 
+	# We locate the winner div
 	winnerDiv = chrome.find_element(By.XPATH,"/html/body/div[2]/div[2]/div[2]/div[3]/div/div[2]")
 
-	val = 0
+	try:
+		start = WebDriverWait(chrome, 60).until(
+			EC.visibility_of_element_located((By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div'))
+		)
+	except NoSuchElementException:
+		print("cant find the syllable")
+		# Display of the error label
+		ERRORLabel = Label(boomWindow,text = "Can't find the syllable.",bg="#403831",font=("Arial",10),fg="red")
+		ERRORLabel.pack(side="top")
+		ERRORLabel.after(5000,ERRORLabel.destroy)
+		return -1 # we return -1 to stop the program
+	
+	lowag = [] # this is the list of word that are already given
 
-	winner = False
-
+	winner = False # boolean to enter the loop
 	while not winner: # While the winner is not displayed we continue
 		try:
 			if say.is_displayed(): # if its True it means that its the turn of the bot to play otherwise if its false
@@ -174,21 +274,15 @@ def launch_game():
 				syllable = syllable.lower()
 
 				# When we have the syllable, we send it to the webpage
-				word = search_word(data,syllable,val)
-				if word == False:
-					if syllable not in syllableOfGame:
-						syllableOfGame.append(syllable)
-					say.send_keys("not found")
-					say.send_keys(Keys.RETURN)
-				else:
-					say.send_keys(word)
-					say.send_keys(Keys.RETURN)
-					val += 1
-					print("It sends the word", word)
+				word = first_word(words,lowag,syllable)
+				lowag.append(word) # we add the word to the list of word already guiven so we never send the same word
+				say.send_keys(word) # We send the word that we found
+				say.send_keys(Keys.RETURN)  # We return it
+				print("It sends the word", word)
 			
 			else:
 				print("It's not the turn of the bot")
-			winner = winnerDiv.is_displayed()
+				winner = winnerDiv.is_displayed()
 
 		except ElementNotInteractableException:
 			print("to long to start")
@@ -210,9 +304,6 @@ def launch_game():
 	print("End of the program")
 	f.close()
 
-	with open("../syllable_of_game.txt","a") as f:
-		for i in range(len(syllableOfGame)):
-			f.write(syllableOfGame[i]+"\n")
 
 # Tkinter part
 # Creation of the main game page
@@ -241,4 +332,3 @@ btnQuit = Button(boomWindow,text="CLOSE", command = boomWindow.destroy)
 btnQuit.pack(pady=20)
 
 boomWindow.mainloop()
-
