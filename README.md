@@ -1,9 +1,11 @@
 # BoumBot
-This is the bot that is going to beat everyone at bombParty.
+### This is the bot that is going to beat everyone at bombParty.
 
-/!\ DON'T OVER USE THE BOT /!\ DON'T BE TOXIC AND HAVE FUN PRINCIPARLY /!\
+## /!\ DON'T OVER USE THE BOT /!\ DON'T BE TOXIC AND HAVE FUN PRINCIPARLY /!\
 
-All the program will do the tasks automaticly but when the bot is joining a game be careful that there is another person who
-is waiting for othe players because you have only 17 seconds (15 seconds for the game to start + 2 seconds if you have a bad connection).
+All you have to do is to give the boombot window the code of the game you want to join and enjoy :)
+If you want to use french words, you can use the list I give you named "list_francais.txt".
 
-If the 17 seconds are past, you will get an error and have to join the game again.
+The bot works perfectly for every words until your list of words is in txt :)
+
+Hope you will like it ! <3
