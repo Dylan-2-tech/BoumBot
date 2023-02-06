@@ -90,6 +90,41 @@ def read_json(filename):
 		data = json.load(f)
 		print(data["en"])
 
+lowag = []
+
+def word_already_given(word,lowag):
+    
+    for i in range(len(lowag)):
+        if lowag[i] == word:
+            return True
+
+    return False
+
+def first_sequentielle(list_of_word,LOW_already_given,syllable):
+
+    found = False
+    ind = 0
+    lenLOW = len(list_of_word)
+
+    while not found and ind < lenLOW:
+        found = syllable in list_of_word[ind]
+        if found and word_already_given(list_of_word[ind],LOW_already_given):
+            found = False
+        ind += 1
+
+    LOW_already_given.append(list_of_word[ind-1])
+    return list_of_word[ind-1]
+
+
+with open("liste_francais.txt", "r") as f:
+    words = [line.strip() for line in f]
+
+with open("syllabes.txt", "r") as f:
+    syllables = [line.strip() for line in f]
+
+for i in range(len(syllables)):
+    print(first_sequentielle(words,lowag,syllables[i]), " syllable = ", syllables[i])
+
 
 def first_ind_syllable(list_of_word,syllable):
 	start = 0
@@ -117,7 +152,7 @@ def first_ind_syllable(list_of_word,syllable):
 	return ind
 
 dic = {}
-#syllableWithoutWord = []
+syllableWithoutWord = []
 
 def create_dic_word_list_by_syllable(syllableList,wordListfile,dic):
 	
@@ -142,9 +177,7 @@ def create_dic_word_list_by_syllable(syllableList,wordListfile,dic):
 				while len(dic[syllable]) != 20 : # While the syllable don't have a list of 20 words #and word != ""
 					word = no_accent_word(listOfWord[indWord].lower().strip())# we set the varaible 'word' with a word in the list at the index 'indWord' and strip() to remove the white spaces
 					if word == "endoffile":
-						if dic[syllable] == []: # if the syllable has no word so we can delete it
-							#print("SYLLABE RETIREE: ", syllable)
-							dic.pop(syllable)
+
 						break
 					elif syllable in word: # If the syllable is in the word
 						dic[syllable].append(word) # We add it into the list of words
@@ -180,12 +213,25 @@ def search_word(list_of_word,syllable):
 
     return no_accent_word(list_of_word[mid].strip().lower())
 
+"""
+with open("test.json") as j:
+    data = json.load(j)
 
-with open("liste_francais.txt") as f:
+
+def create_txt(data):
+    with open("syllabes.txt","w") as f:
+        for k in data.keys():
+            f.write(k+"\n")
+
+
+create_txt(data)
+
+
+with open("../liste_francais.txt") as f:
     data = f.readlines()
     print(search_word(data,"a"))
 
-"""
+
 # Open file    
 fileHandler = open ("liste_francais.txt", "r")
 # Get list of all lines in file
