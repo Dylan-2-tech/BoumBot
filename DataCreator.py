@@ -16,13 +16,19 @@ def read_json(filename):
 # return True if the word is found in the vocabullary.json and false otherwise
 def search_word_json(filename,syllable,lowag):
 	ind = 0
+	found = False
 	with open(filename,"r") as j:
 		data = json.load(j)
 		if syllable in data.keys():
-			while dic[syllable][ind] != sw.word_already_given(syllable[ind], lowag)
+			while ind < len(dic[syllable]) and not found:
+				word = dic[syllable][ind]
+				if not sw.word_already_given(word, lowag):
+					return word
+				ind+=1
+	return found
 
 # Create a dictionnary with the syllable as keys and a list of words as values
-def create_dic_word_list_by_syllable(listOfSyllable,listOfWord,dic):
+def create_dic_word_list_by_syllable(listOfSyllable,listOfWord,dic,sylwoW):
 
 	indWord = 0
 	indSyl = 0
@@ -38,7 +44,8 @@ def create_dic_word_list_by_syllable(listOfSyllable,listOfWord,dic):
 			word = sw.no_accent_word(listOfWord[indWord])# we set the varaible 'word' with a word in the list at the index 'indWord' and strip() to remove the white spaces
 			if word == "endoffile":
 				dic.pop(syllable[indSyl])
-				print("Syllable without word")
+				print(f"{syllable[indSyl]} without word")
+				sylwoW.append(dic[syllable][indSyl])
 				break
 			elif listOfSyllable[indSyl] in word: # If the syllable is in the word
 				dic[listOfSyllable[indSyl]].append(word) # We add it into the list of words
@@ -48,8 +55,10 @@ def create_dic_word_list_by_syllable(listOfSyllable,listOfWord,dic):
 
 
 
-syllable = ["a","b","hazu", "endofsyl"]
+syllable = ["a","b","a", "endofsyl"]
 sylWithoutWords = []
+lowag = []
+
 
 # Opens the list of words file and create a list with all words in without '\n' or Upper letters
 with open("liste_francais.txt", "r", encoding = "latin-1") as f:
@@ -57,9 +66,8 @@ with open("liste_francais.txt", "r", encoding = "latin-1") as f:
 
 dic = {}
 
-create_dic_word_list_by_syllable(syllable,words,dic)
-print(dic)
-#create_json(dic,"vocabullary.json")
-
-
-#read_json("vocabullary.json")
+create_dic_word_list_by_syllable(syllable,words,dic,sylWithoutWords)
+print("Syllable without words are: ", sylWithoutWords)
+create_json(dic,"vocabullary.json")
+read_json("vocabullary.json")
+print(search_word_json("vocabullary.json","a",lowag))
