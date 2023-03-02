@@ -31,21 +31,29 @@ def first_word(listOfWord,LowAlreadyGiven,syllable):
 
 
 # return True if the word is found in the vocabullary.json and false otherwise
-def search_word_json(filename,syllable,lowag,dic):
+def search_word_json(vocabullary,syllable,lowag):
 
-    ind = 0
-    found = False
-    with open(filename,"r") as j:
-        data = json.load(j)
-        if syllable in data.keys():
-            while ind < len(dic[syllable]) and not found:
-                word = dic[syllable][ind]
-                if not word_already_given(word, lowag):
-                    return word
-                ind+=1
-    return found
+    indWord = 0 # index to refer the word
+    if syllable in vocabullary.keys(): # if the syllable is contain in the vocabullary
+        while indWord < len(vocabullary[syllable]): # while 
+            word = vocabullary[syllable][indWord] # word is equal to the word at the index indWord
+            if not word_already_given(word, lowag): # if the word the word is not already given
+                return word # we return the word
+            indWord += 1 # else we compare to the next word
+    return False # we return False if we have found it or not
 
+"""
+# we open the json file that contain the data (vocabullary)
+with open("vocabullary.json","r") as j: # opening the file
+    vocabullary = json.load(j) # loading all the data of the vocabullary
 
+word = search_word_json(vocabullary,"a",['aaron', 'abaisse', 'abaissement', 'abaisser', 'abandon', 'abandonnant', 'abandonne', 'abandonne', 'abandonnee', 'abandonnees', 'abandonnent', 'abandonner',  'abasie', 'abasourdi', 'abasourdir', 'abasourdissement', 'abat-jour', 'abats', 'abattage'])
+
+if word:
+    print(word)
+if not word:
+    print("mot pas trouvé")
+"""
 
 # Returns the index of the word who contains the syllable searched
 def first_ind_syllable(listOfWord,syllable):

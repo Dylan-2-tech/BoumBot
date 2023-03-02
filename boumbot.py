@@ -15,14 +15,13 @@ from tkinter import *
 from tkinter import ttk
 import json
 import SearchWords as sw
-import Datacreator as dc
+import DataCreator as dc
 
 
 # function that will launch the game
 def launch_game():
 
-	
-
+	dc.clean_vocabullary("liste_francais.txt")
 
 	code = entry_code.get() # We retrieve the code who is in the entry
 	# Check if the code is correct
@@ -39,7 +38,6 @@ def launch_game():
 	# Chrome webpage launch with the url, /!\ IF THE CODE IS FOR AN OLD PARTY THE ERROR WILL BE SPOTTED AT LINE 101--------------------------------
 	chrome.get(f'https://jklm.fun/{code}') 
 	
-	time.sleep(1)
 
 	# Step of connecting the bot with the username used in line 42
 	try:
@@ -93,8 +91,8 @@ def launch_game():
 		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
+	time.sleep(1)
 
-	time.sleep(2)
 	"""
 	The BombParty game hapens in an iframe which is located differently from the main page of the website.
 	To locate element from the Iframe I have to switch to webpage we want to locate element on.
@@ -102,7 +100,9 @@ def launch_game():
 	I have to first locate the Iframe then to switch.
 	"""
 	try:
-		iframe = chrome.find_element(By.XPATH,'/html/body/div[2]/div[4]/div[1]/iframe')
+		iframe = WebDriverWait(chrome, 60).until(
+			EC.presence_of_element_located((By.XPATH,'/html/body/div[2]/div[4]/div[1]/iframe'))
+		)
 		chrome.switch_to.frame(iframe) # Switching
 		print("Iframe found")
 		# NOW ALL THE ELEMENT LOCATED ARE IN THE IFRAME AND NOT IN THE MAIN WEBPAGE ANYMORE
@@ -123,12 +123,11 @@ def launch_game():
 		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
-	time.sleep(2) # waiting for thos who have bad connection
 
 	# If the page load correctly, we join the game
 	try:
 		# Implicit wait for those who have bad connection
-		join = WebDriverWait(chrome, 10).until(
+		join = WebDriverWait(chrome, 60).until(
 			EC.presence_of_element_located((By.XPATH,"/html/body/div[2]/div[3]/div[1]/div[1]/button"))
 		)
 		join.click() # When found We click on the button to join
@@ -150,15 +149,7 @@ def launch_game():
 		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
 
-	# We search the input where the word needs to be entered 
-	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
 
-	# We open the txt files who contains the list of words
-	with open("liste_francais.txt") as f:
-		words = [line.strip() for line in f]
-
-	# We locate the winner div
-	winnerDiv = chrome.find_element(By.XPATH,"/html/body/div[2]/div[2]/div[2]/div[3]/div/div[2]")
 
 	try:
 		start = WebDriverWait(chrome, 60).until(
@@ -171,11 +162,27 @@ def launch_game():
 		ERRORLabel.pack(side="top")
 		ERRORLabel.after(5000,ERRORLabel.destroy)
 		return -1 # we return -1 to stop the program
-	
-	lowag = [] # this is the list of word that are already given
 
-	winner = False # boolean to enter the loop
-	while not winner: # While the winner is not displayed we continue
+	# We search the input where the word needs to be entered 
+	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
+
+	# We open the txt files who contains the list of words
+	with open("liste_francais.txt") as f:
+		words = [line.strip() for line in f]
+	f.close()
+
+	# we open the json file that contain the data (vocabullary)
+	with open("vocabullary.json", "r") as j: # opening the file
+		vocabullary = json.load(j) # loading all the data of the vocabullary
+	j.close()
+
+	lowag = [] # this is the list of word that are already given
+	newSyllable = [] # list of the new syllable to learn
+
+	# We locate the winner div
+	winnerDiv = chrome.find_element(By.XPATH,"/html/body/div[2]/div[2]/div[2]/div[3]/div/div[2]")
+
+	while not winnerDiv.is_displayed(): # While the winner is not displayed we continue
 		try:
 			if say.is_displayed(): # if its True it means that its the turn of the bot to play otherwise if its false
 				# Location of the Div where the syllable is
@@ -183,10 +190,15 @@ def launch_game():
 				syllable = syllable.lower()
 
 				# When we have the syllable, we search a word in the vocabullary first (it's quicker)
-				word = 
+				word = sw.search_word_json(vocabullary,syllable,lowag)
+				if not word:
+					print("WORD NOT IN VOCABULLARY")
+					newSyllable.append(syllable)
+					word = sw.first_word(words,lowag,syllable)
+				else:
+					print("THE MTHFCKN WORD IS IN THE VOCABULLARY")
 
 
-				word = sw.first_word(words,lowag,syllable)
 				lowag.append(word) # we add the word to the list of word already guiven so we never send the same word
 				say.send_keys(word) # We send the word that we found
 				say.send_keys(Keys.RETURN)  # We return it
@@ -194,7 +206,6 @@ def launch_game():
 			
 			else:
 				print("It's not the turn of the bot")
-				winner = winnerDiv.is_displayed()
 
 		except ElementNotInteractableException:
 			print("to long to start")
@@ -213,9 +224,19 @@ def launch_game():
 			return -1 # we return -1 to stop the program
 
 		time.sleep(2) # We wait 2 second between each word 
-	print("End of the program")
-	lowag = []
-	f.close()
+	
+
+	print("End of the bot\nStarting of the learning...")
+
+	# Step of learning the words that are not in the vocabullary
+
+	sylWithoutWords = [] # list of syllables without words
+	newVocabullary = {} # dictionnary that represent the new vocabullary
+
+	dc.create_dic_word_list_by_syllable(newSyllable,words,newVocabullary,sylWithoutWords)
+	dc.create_dic_word_list_by_syllable_sequential(words,sylWithoutWords,newVocabullary)
+	dc.create_vocabullary(newVocabullary,"vocabullary.json")
+	
 
 
 # Tkinter part
