@@ -15,10 +15,15 @@ from tkinter import *
 from tkinter import ttk
 import json
 import SearchWords as sw
+import Datacreator as dc
 
 
 # function that will launch the game
 def launch_game():
+
+	
+
+
 	code = entry_code.get() # We retrieve the code who is in the entry
 	# Check if the code is correct
 	if len(code) != 4: # If the code length is not 4 characters so it's a wrong code
@@ -177,7 +182,10 @@ def launch_game():
 				syllable = chrome.find_element(By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div').text
 				syllable = syllable.lower()
 
-				# When we have the syllable, we send it to the webpage
+				# When we have the syllable, we search a word in the vocabullary first (it's quicker)
+				word = 
+
+
 				word = sw.first_word(words,lowag,syllable)
 				lowag.append(word) # we add the word to the list of word already guiven so we never send the same word
 				say.send_keys(word) # We send the word that we found
