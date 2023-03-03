@@ -1,12 +1,31 @@
 import json
 import SearchWords as sw
 import unicodedata
+from json.decoder import JSONDecodeError
 
 # Create a json file using a dictionnary (data) and a filename
 def create_vocabullary(data,filename):
-	with open(filename,"w") as f:
-		json.dump(data,f,indent=2)
+	with open(filename,"w") as j:
+		json.dump(data,j,indent=2)
+	j.close()
 	print("vocabullary learned !")
+
+
+def vocabullary_update(newVocabullary,filename):
+	with open("vocabullary.json", "r") as j:
+		try:
+			data = json.load(j)
+			j.close()
+
+			for syllable, words in newVocabullary.items():
+				data[syllable] = [word for word in words]
+			
+			create_vocabullary(data,"vocabullary.json")
+
+		except JSONDecodeError:
+			print("empty vocabullary, can't load !")
+			create_vocabullary(newVocabullary,"vocabullary.json")
+
 
 # Read the json and display the json file using his name file
 def read_json(filename):
@@ -107,7 +126,3 @@ def clean_vocabullary(filename):
 			f.write("\n###")
 
 	f.close() # closing the file
-
-
-
-read_json("vocabullary.json")

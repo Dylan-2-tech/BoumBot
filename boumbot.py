@@ -16,6 +16,7 @@ from tkinter import ttk
 import json
 import SearchWords as sw
 import DataCreator as dc
+from json.decoder import JSONDecodeError
 
 
 # function that will launch the game
@@ -150,7 +151,6 @@ def launch_game():
 		return -1 # we return -1 to stop the program
 
 
-
 	try:
 		start = WebDriverWait(chrome, 60).until(
 			EC.visibility_of_element_located((By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div'))
@@ -173,7 +173,10 @@ def launch_game():
 
 	# we open the json file that contain the data (vocabullary)
 	with open("vocabullary.json", "r") as j: # opening the file
-		vocabullary = json.load(j) # loading all the data of the vocabullary
+		try:
+			vocabullary = json.load(j) # loading all the data of the vocabullary
+		except JSONDecodeError:
+			vocabullary = False
 	j.close()
 
 	lowag = [] # this is the list of word that are already given
@@ -190,14 +193,17 @@ def launch_game():
 				syllable = syllable.lower()
 
 				# When we have the syllable, we search a word in the vocabullary first (it's quicker)
-				word = sw.search_word_json(vocabullary,syllable,lowag)
+				if type(vocabullary) == dict:
+					word = sw.search_word_json(vocabullary,syllable,lowag)
+				else:
+					word = False
+					
 				if not word:
 					print("WORD NOT IN VOCABULLARY")
 					newSyllable.append(syllable)
 					word = sw.first_word(words,lowag,syllable)
 				else:
 					print("THE MTHFCKN WORD IS IN THE VOCABULLARY")
-
 
 				lowag.append(word) # we add the word to the list of word already guiven so we never send the same word
 				say.send_keys(word) # We send the word that we found
@@ -235,9 +241,8 @@ def launch_game():
 
 	dc.create_dic_word_list_by_syllable(newSyllable,words,newVocabullary,sylWithoutWords)
 	dc.create_dic_word_list_by_syllable_sequential(words,sylWithoutWords,newVocabullary)
-	dc.create_vocabullary(newVocabullary,"vocabullary.json")
+	dc.vocabullary_update(newVocabullary,"vocabullary.json")
 	
-
 
 # Tkinter part
 # Creation of the main game page
