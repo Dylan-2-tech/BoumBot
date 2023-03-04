@@ -5,34 +5,34 @@ from json.decoder import JSONDecodeError
 
 # Create a json file using a dictionnary (data) and a filename
 def create_vocabullary(data,filename):
-	with open(filename,"w") as j:
-		json.dump(data,j,indent=2)
-	j.close()
+	with open(filename,"w") as j: # opening the file
+		json.dump(data,j,indent=2) # writing in the json file
+	j.close() # closing the file
 	print("vocabullary learned !")
 
 
 def vocabullary_update(newVocabullary,filename):
-	with open("DataFolder/vocabullary.json", "r") as j:
-		try:
-			data = json.load(j)
-			j.close()
+	with open("DataFolder/vocabullary.json", "r") as j: # opening the file
+		try: # need try if the file is empty
+			data = json.load(j) # loading the content of the json file as a dictionnary
+			j.close() # closing the file
 
 			for syllable, words in newVocabullary.items():
-				data[syllable] = [word for word in words]
+				data[syllable] = [word for word in words] # adding in the dictonnary 'data' syllables with there words
 			
-			create_vocabullary(data,"DataFolder/vocabullary.json")
+			create_vocabullary(data,"DataFolder/vocabullary.json") # recreating the data
 
-		except JSONDecodeError:
+		except JSONDecodeError: # If the json file is empty
 			print("empty vocabullary, can't load !")
-			create_vocabullary(newVocabullary,"DataFolder/vocabullary.json")
+			create_vocabullary(newVocabullary,"DataFolder/vocabullary.json") # create the data with the new vocabullary
 
 
 # Read the json and display the json file using his name file
 def read_json(filename):
-	with open(filename,"r") as j:
-		data = json.load(j)
+	with open(filename,"r") as j: # opening the file
+		data = json.load(j) # loading the content of the json file as a dictionnary
 		for syllable, word in data.items():
-			print(f"{syllable} : {word}\n")
+			print(f"{syllable} : {word}\n") # displaying the content of the json file
 
 
 # Create a dictionnary with the syllable as keys and a list of words as values
@@ -47,7 +47,7 @@ def create_dic_word_list_by_syllable(listOfSyllable,listOfWord,dic,sylwoW):
 
 		indWord = sw.first_ind_syllable(listOfWord,syllable) # indWord is the index of the first word with the syllable in it that appear in the list
 		while len(dic[syllable]) != 20 : # While the syllable don't have a list of 20 words
-			word = listOfWord[indWord-1] # the word is equal to the word at the index 'indWord'
+			word = listOfWord[indWord-1] # the word is equal to the word at the index 'indWord'-1
 			if indWord == lenWord: # If we are at the end of the list of words
 				sylwoW.append(syllable) # we append the syllable in a list of syllable without words 
 				dic.pop(syllable) # We remove the syllable from the dictionnary
@@ -55,9 +55,9 @@ def create_dic_word_list_by_syllable(listOfSyllable,listOfWord,dic,sylwoW):
 			elif syllable in word: # If the syllable is in the word
 				dic[syllable].append(word) # We add it into the list of words
 
-			indWord += 1# we increment to compare to an other word
+			indWord += 1# we increment to compare to another word
 
-		indSyl += 1 # we increment to compare to an other syllable
+		indSyl += 1 # we increment to compare to another syllable
 
 
 # add in a dictionnary as key a syllable and as value the words that contain the syllable
@@ -97,11 +97,11 @@ def is_clean(data):
 	/!\ '###' means that all the words in the file are in lowercase and without any accent
 	It's like a certification 
 	"""
-	if len(data) == 0:
-		print("The file is empty")
-		return True
+	if len(data) == 0: # if the file were the words are is empty
+		print("The file is empty") # print it out
+		return True # and return True
 	else:
-		if data[len(data)-1] == "###":
+		if data[len(data)-1] == "###": # if at the end is present '###' it means that all the words are clean
 			return True
 		else:
 			return False
@@ -118,7 +118,7 @@ def clean_vocabullary(filename):
 		else: # if the file is not clean
 			# clearing the words
 			print("clearing the words")
-			words = [remove_accents(word) for word in words]
+			words = [remove_accents(word) for word in words] # for each word, we clean it
 			
 			# overwriting the words from the start
 			f.seek(0) # /!\ Without the seek to 0 it copy paste the content and rewrite it at the end of the file
