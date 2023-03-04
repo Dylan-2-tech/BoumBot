@@ -24,7 +24,7 @@ def launch_game():
 
 	print("\n\nStart of the party !")
 
-	dc.clean_vocabullary("liste_francais.txt")
+	dc.clean_vocabullary("DataFolder/liste_francais.txt")
 
 	userName = userName_entry.get()
 	if userName == "":
@@ -174,12 +174,12 @@ def launch_game():
 	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
 
 	# We open the txt files who contains the list of words
-	with open("liste_francais.txt") as f:
+	with open("DataFolder/liste_francais.txt") as f:
 		words = [line.strip() for line in f]
 	f.close() # Closing the txt file
 
 	# we open the json file that contain the data (vocabullary)
-	with open("vocabullary.json", "r") as j: # opening the file
+	with open("DataFolder/vocabullary.json", "r") as j: # opening the file
 		try: # We need to try because if the vocabullary.json file is empty it returns the 'JSODecodeError' error
 			vocabullary = json.load(j) # loading all the data of the vocabullary
 		except JSONDecodeError: # Error if the vocabullary file is empty
@@ -270,7 +270,7 @@ def launch_game():
 	# Creating the rest of the vocabullary thanks to a sequential search with the rest of the syllable ( slow but it sure to obtain a vocabullary for all syllable)
 	dc.create_dic_word_list_by_syllable_sequential(words,sylWithoutWords,newVocabullary)
 	# Append the vocabullary created before to the definitive vocabullary file
-	dc.vocabullary_update(newVocabullary,"vocabullary.json")
+	dc.vocabullary_update(newVocabullary,"DataFolder/vocabullary.json")
 	
 
 # Tkinter part

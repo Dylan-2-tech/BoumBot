@@ -12,7 +12,7 @@ def create_vocabullary(data,filename):
 
 
 def vocabullary_update(newVocabullary,filename):
-	with open("vocabullary.json", "r") as j:
+	with open("DataFolder/vocabullary.json", "r") as j:
 		try:
 			data = json.load(j)
 			j.close()
@@ -20,11 +20,11 @@ def vocabullary_update(newVocabullary,filename):
 			for syllable, words in newVocabullary.items():
 				data[syllable] = [word for word in words]
 			
-			create_vocabullary(data,"vocabullary.json")
+			create_vocabullary(data,"DataFolder/vocabullary.json")
 
 		except JSONDecodeError:
 			print("empty vocabullary, can't load !")
-			create_vocabullary(newVocabullary,"vocabullary.json")
+			create_vocabullary(newVocabullary,"DataFolder/vocabullary.json")
 
 
 # Read the json and display the json file using his name file
