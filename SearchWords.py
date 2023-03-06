@@ -29,6 +29,11 @@ def first_word(listOfWord,LowAlreadyGiven,syllable):
     LowAlreadyGiven.append(listOfWord[indWord-1]) # append the word found to the lowag list
     return listOfWord[indWord-1] # returns the word
 
+with open("DataFolder/liste_francais.txt", "r") as f:
+    words = [word.strip() for word in f]
+
+print(first_word(words,["actuels","alsace"],"ls"))
+
 
 # return True if the word is found in the vocabullary.json and false otherwise
 def search_word_json(vocabullary,syllable,lowag):
