@@ -24,7 +24,7 @@ def launch_game():
 
 	print("\n\nStart of the party !")
 
-	dc.clean_vocabullary("DataFolder/liste_francais.txt")
+	dc.clean_vocabulary("DataFolder/liste_francais.txt")
 
 	userName = userName_entry.get()
 	if userName == "":
@@ -48,7 +48,7 @@ def launch_game():
 	# Step of connecting the bot with the username used in line 42
 	try:
 		# Implicit wait for the username input appear on the webpage
-		uN = WebDriverWait(chrome, 10).until(
+		uN = WebDriverWait(chrome, 60).until(
 			EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.pages > div.setNickname.page > form > div.line > input"))
 		)
 		uN.clear() # We clear because there is a default guest username
@@ -136,6 +136,7 @@ def launch_game():
 		join = WebDriverWait(chrome, 60).until( # Wait 1 minute until ...
 			EC.presence_of_element_located((By.XPATH,"/html/body/div[2]/div[3]/div[1]/div[1]/button")) # ... the button is on the webpage
 		)
+		time.sleep(1)
 		join.click() # When the button is clickable, we click
 
 	except NoSuchElementException: # exception if the program has not find the join button
@@ -174,22 +175,22 @@ def launch_game():
 	say = chrome.find_element(By.XPATH,"/html/body/div[2]/div[3]/div[2]/div[2]/form/input")
 
 	# We open the txt files who contains the list of words
-	with open("DataFolder/liste_francais.txt") as f:
+	with open("DataFolder/liste_francais.txt","r",encoding = "latin-1") as f:
 		words = [line.strip() for line in f]
 	f.close() # Closing the txt file
 
-	# we open the json file that contain the data (vocabullary)
-	with open("DataFolder/vocabullary.json", "r") as j: # opening the file
-		try: # We need to try because if the vocabullary.json file is empty it returns the 'JSODecodeError' error
-			vocabullary = json.load(j) # loading all the data of the vocabullary
-		except JSONDecodeError: # Error if the vocabullary file is empty
-			vocabullary = False # Vocaullary is False (needed for line 203)
+	# we open the json file that contain the data (vocabulary)
+	with open("DataFolder/vocabulary.json", "r") as j: # opening the file
+		try: # We need to try because if the vocabulary.json file is empty it returns the 'JSODecodeError' error
+			vocabulary = json.load(j) # loading all the data of the vocabulary
+		except JSONDecodeError: # Error if the vocabulary file is empty
+			vocabulary = False # Vocaullary is False (needed for line 203)
 	j.close() # Closing the Json file
 
 	lowag = [] # this is the list of word that are already given
 	newSyllable = [] # list of the new syllable to learn
 
-	nbrWordVoc = 0 # the number of word give thanks to the vocabullary
+	nbrWordVoc = 0 # the number of word give thanks to the vocabulary
 	nbrWordNotVoc = 0 # the number of word give thanks to the sequential search
 
 	# We locate the winner div
@@ -202,20 +203,20 @@ def launch_game():
 				syllable = chrome.find_element(By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div').text
 				syllable = syllable.lower()
 
-				# When we have the syllable, we search a word in the vocabullary first (it's quicker)
-				if type(vocabullary) == dict: # if the vocabullary is False, the word is False too
-					word = sw.search_word_json(vocabullary,syllable,lowag) # If the syllable is known in the vocabullary, it returns a word otherwise it return False 
-					nbrWordVoc += 1 # incrementing for statistics STONKS
+				# When we have the syllable, we search a word in the vocabulary first (it's quicker)
+				if type(vocabulary) == dict: # if the vocabulary is False, the word is False too
+					word = sw.search_word_json(vocabulary,syllable,lowag) # If the syllable is known in the vocabulary, it returns a word otherwise it return False 
 				else:
-					word = False # Word is False because the word is not in the vocabullary (go to 209)
+					word = False # Word is False because the word is not in the vocabulary (go to 209)
 					
-				if not word: # if word == False we search the word by a sequential search and not thanks to the vocabullary
-					print("WORD NOT IN VOCABULLARY")
+				if not word: # if word == False we search the word by a sequential search and not thanks to the vocabulary
+					print("WORD NOT IN vocabulary")
 					newSyllable.append(syllable) # If the syllable is not known, we add it so the bot we learn
 					word = sw.first_word(words,lowag,syllable) # The word is the first word that contains the syllable
 					nbrWordNotVoc += 1 # incrementing for statistics STONKS
 				else:
-					print("THE MTHFCKN WORD IS IN THE VOCABULLARY")
+					print("THE MTHFCKN WORD IS IN THE vocabulary")
+					nbrWordVoc += 1 # incrementing for statistics STONKS
 
 				lowag.append(word) # we add the word to the list of word already guiven so we never send the same word
 				say.send_keys(word) # We send the word that we found
@@ -223,6 +224,11 @@ def launch_game():
 				print("It sends the word", word)
 			
 			else: # It's the turn of the opponent
+				syllable = chrome.find_element(By.XPATH,'/html/body/div[2]/div[2]/div[2]/div[2]/div').text
+				syllable = syllable.lower()
+
+				if syllable not in vocabulary.keys():
+					newSyllable.append(syllable)
 				print("It's not the turn of the bot")
 
 		except ElementNotInteractableException: # If an element of the webpage is not interactable
@@ -255,22 +261,22 @@ def launch_game():
 		WINNERLabel.pack(side="top")
 		WINNERLabel.after(5000,WINNERLabel.destroy) # Destroying the label after 5 seconds of display
 	
-	print(f"\n\nSTATISTICS:\n{nbrWordVoc} words were in the vocabullary")
-	print(f"{nbrWordNotVoc} words were not in the vocabullary")
+	print(f"\n\nSTATISTICS:\n{nbrWordVoc} words were in the vocabulary")
+	print(f"{nbrWordNotVoc} words were not in the vocabulary")
 
 	print("\nEnd of the bot\nStarting of the learning...")
 
-	# Step of learning the words that are not in the vocabullary
+	# Step of learning the words that are not in the vocabulary
 
 	sylWithoutWords = [] # list of syllables without words
-	newVocabullary = {} # dictionnary that represent the new vocabullary
+	newvocabulary = {} # dictionnary that represent the new vocabulary
 
-	# Creating the vocabullary thanks to a binary search ( very quick but don't get a vocabullary for all words )
-	dc.create_dic_word_list_by_syllable(newSyllable,words,newVocabullary,sylWithoutWords)
-	# Creating the rest of the vocabullary thanks to a sequential search with the rest of the syllable ( slow but it sure to obtain a vocabullary for all syllable)
-	dc.create_dic_word_list_by_syllable_sequential(words,sylWithoutWords,newVocabullary)
-	# Append the vocabullary created before to the definitive vocabullary file
-	dc.vocabullary_update(newVocabullary,"DataFolder/vocabullary.json")
+	# Creating the vocabulary thanks to a binary search ( very quick but don't get a vocabulary for all words )
+	dc.create_dic_word_list_by_syllable(newSyllable,words,newvocabulary,sylWithoutWords)
+	# Creating the rest of the vocabulary thanks to a sequential search with the rest of the syllable ( slow but it sure to obtain a vocabulary for all syllable)
+	dc.create_dic_word_list_by_syllable_sequential(words,sylWithoutWords,newvocabulary)
+	# Append the vocabulary created before to the definitive vocabulary file
+	dc.vocabulary_update(newvocabulary,"DataFolder/vocabulary.json")
 	
 
 # Tkinter part

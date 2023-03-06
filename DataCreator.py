@@ -4,27 +4,27 @@ import unicodedata
 from json.decoder import JSONDecodeError
 
 # Create a json file using a dictionnary (data) and a filename
-def create_vocabullary(data,filename):
+def create_vocabulary(data,filename):
 	with open(filename,"w") as j: # opening the file
 		json.dump(data,j,indent=2) # writing in the json file
 	j.close() # closing the file
-	print("vocabullary learned !")
+	print("vocabulary learned !")
 
 
-def vocabullary_update(newVocabullary,filename):
-	with open("DataFolder/vocabullary.json", "r") as j: # opening the file
+def vocabulary_update(newvocabulary,filename):
+	with open("DataFolder/vocabulary.json", "r") as j: # opening the file
 		try: # need try if the file is empty
 			data = json.load(j) # loading the content of the json file as a dictionnary
 			j.close() # closing the file
 
-			for syllable, words in newVocabullary.items():
+			for syllable, words in newvocabulary.items():
 				data[syllable] = [word for word in words] # adding in the dictonnary 'data' syllables with there words
 			
-			create_vocabullary(data,"DataFolder/vocabullary.json") # recreating the data
+			create_vocabulary(data,"DataFolder/vocabulary.json") # recreating the data
 
 		except JSONDecodeError: # If the json file is empty
-			print("empty vocabullary, can't load !")
-			create_vocabullary(newVocabullary,"DataFolder/vocabullary.json") # create the data with the new vocabullary
+			print("empty vocabulary, can't load !")
+			create_vocabulary(newvocabulary,"DataFolder/vocabulary.json") # create the data with the new vocabulary
 
 
 # Read the json and display the json file using his name file
@@ -107,7 +107,7 @@ def is_clean(data):
 			return False
 
 # Clean the words contain in the file (remove all accent and capital letter)
-def clean_vocabullary(filename):
+def clean_vocabulary(filename):
 	# Opens the list of words file and create a list with all words in without '\n' or Upper letters
 	with open(filename, "r+", encoding = "latin-1") as f:
 		words = [word.lower() for word in f]

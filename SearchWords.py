@@ -29,19 +29,14 @@ def first_word(listOfWord,LowAlreadyGiven,syllable):
     LowAlreadyGiven.append(listOfWord[indWord-1]) # append the word found to the lowag list
     return listOfWord[indWord-1] # returns the word
 
-with open("DataFolder/liste_francais.txt", "r") as f:
-    words = [word.strip() for word in f]
 
-print(first_word(words,["actuels","alsace"],"ls"))
-
-
-# return True if the word is found in the vocabullary.json and false otherwise
-def search_word_json(vocabullary,syllable,lowag):
+# return True if the word is found in the vocabulary.json and false otherwise
+def search_word_json(vocabulary,syllable,lowag):
 
     indWord = 0 # index to refer the word
-    if syllable in vocabullary.keys(): # if the syllable is contain in the vocabullary
-        while indWord < len(vocabullary[syllable]): # while 
-            word = vocabullary[syllable][indWord] # word is equal to the word at the index indWord
+    if syllable in vocabulary.keys(): # if the syllable is contain in the vocabulary
+        while indWord < len(vocabulary[syllable]): # while 
+            word = vocabulary[syllable][indWord] # word is equal to the word at the index indWord
             if not word_already_given(word, lowag): # if the word the word is not already given
                 return word # we return the word
             indWord += 1 # else we compare to the next word
