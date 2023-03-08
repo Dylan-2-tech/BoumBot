@@ -210,12 +210,12 @@ def launch_game():
 					word = False # Word is False because the word is not in the vocabulary (go to 209)
 					
 				if not word: # if word == False we search the word by a sequential search and not thanks to the vocabulary
-					print("WORD NOT IN vocabulary")
 					newSyllable.append(syllable) # If the syllable is not known, we add it so the bot we learn
 					word = sw.first_word(words,lowag,syllable) # The word is the first word that contains the syllable
 					nbrWordNotVoc += 1 # incrementing for statistics STONKS
+					print("The word "+word+" is not in the vocabulary.json")
 				else:
-					print("THE MTHFCKN WORD IS IN THE vocabulary")
+					print("The word "+word+" is in the vocabulary.json")
 					nbrWordVoc += 1 # incrementing for statistics STONKS
 
 				lowag.append(word) # we add the word to the list of word already guiven so we never send the same word
