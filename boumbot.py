@@ -44,6 +44,7 @@ def launch_game():
 	# Chrome webpage launch with the url, /!\ IF THE CODE IS FOR AN OLD PARTY THE ERROR WILL BE SPOTTED AT LINE 101--------------------------------
 	chrome.get(f'https://jklm.fun/{code}') 
 	
+	time.sleep(1)
 
 	# Step of connecting the bot with the username used in line 42
 	try:
@@ -184,7 +185,7 @@ def launch_game():
 		try: # We need to try because if the vocabulary.json file is empty it returns the 'JSODecodeError' error
 			vocabulary = json.load(j) # loading all the data of the vocabulary
 		except JSONDecodeError: # Error if the vocabulary file is empty
-			vocabulary = False # Vocaullary is False (needed for line 203)
+			vocabulary = {} # Vocaullary is empty (needed for line 231)
 	j.close() # Closing the Json file
 
 	lowag = [] # this is the list of word that are already given
