@@ -2,6 +2,7 @@ import time
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoSuchWindowException
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -110,14 +111,14 @@ def launch_game():
 	"""
 	try:
 		# Implicit wait for those who have bad connection
-		iframe = WebDriverWait(chrome, 60).until( # Wait 1 minute until ...
+		iframe = WebDriverWait(chrome, 10).until( # Wait 20 seeconds until ...
 			EC.presence_of_element_located((By.XPATH,'/html/body/div[2]/div[4]/div[1]/iframe')) # ... the iframe has load correctly
 		)
 		chrome.switch_to.frame(iframe) # Switching to the Iframe
 		print("Iframe found")
 		# NOW ALL THE ELEMENT LOCATED ARE IN THE IFRAME AND NOT IN THE MAIN WEBPAGE ANYMORE
 		
-	except NoSuchElementException: # THIS ERROR HAPPEN WHEN THE CODE OF THE PARTY IS FOR AN OLD PARTY OR WHEN THE CODE IS WRONG
+	except TimeoutException: # THIS ERROR HAPPEN WHEN THE CODE OF THE PARTY IS FOR AN OLD PARTY OR WHEN THE CODE IS WRONG
 		print("old party")
 		# Display of the error label
 		ERRORLabel = Label(boumWindow,text = "The code you have entered is for an old party or a wrong one, please try again.",bg="#403831",font=("Arial",10),fg="red")
