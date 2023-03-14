@@ -22,13 +22,7 @@ from json.decoder import JSONDecodeError
 # function that will launch the game
 def launch_game():
 
-	print("\n\nStart of the party !")
-
-	dc.clean_vocabulary("DataFolder/liste_francais.txt")
-
-	userName = userName_entry.get()
-	if userName == "":
-		userName = "BoumBot"
+	
 	code = entry_code.get() # We retrieve the code who is in the entry
 	# Check if the code is correct
 	if len(code) != 4: # If the code length is not 4 characters so it's a wrong code
@@ -37,6 +31,14 @@ def launch_game():
 		wrongLabel.pack(side="top")
 		wrongLabel.after(2000,wrongLabel.destroy) # destroying label after 2 seconds of display
 		return -1
+
+	print("\n\nStart of the party !")
+
+	dc.clean_vocabulary("DataFolder/liste_francais.txt")
+
+	userName = userName_entry.get()
+	if userName == "":
+		userName = "BoumBot"
 
 	options = Options()
 	chrome = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
@@ -57,7 +59,7 @@ def launch_game():
 		uN.send_keys(Keys.RETURN) # Return the nickname to the webpage
 
 	except ElementNotInteractableException: # Excetion if the program has not found the input
-		print("input not found")
+		print("This is a current error, retry.")
 		# Display of the error label
 		ERRORLabel = Label(boumWindow,text = "Input not found, try again.",bg="#403831",font=("Arial",10),fg="red")
 		ERRORLabel.pack(side="top")
@@ -305,7 +307,6 @@ userName_label.pack()
 # Creation of the username Entry
 userName_entry = Entry(boumWindow)
 userName_entry.pack()
-
 
 # Creation of the button that will launch the game
 btnGetCode = Button(boumWindow,text="Get started !",command = launch_game)
