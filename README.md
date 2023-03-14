@@ -102,4 +102,4 @@ If it's done you can start the bot and enjoy :)
 
 #
 
-[Python](https://img.shields.io/badge/-Python-05122A?style=flat&logo=python)
+![Python](https://img.shields.io/badge/-Python-05122A?style=flat&logo=python)&nbsp;
