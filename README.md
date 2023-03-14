@@ -100,3 +100,6 @@ If it's done you can start the bot and enjoy :)
 
 - [@dylan-2-tech](https://www.github.com/Dylan-2-tech)
 
+#
+
+[Python](https://img.shields.io/badge/-Python-05122A?style=flat&logo=python)
