@@ -42,7 +42,8 @@ Then install it with:
 
 #
 Download the latest chrome version on **WINDOWS** thanks to this link: https://www.google.com/chrome/
-###
+#
+
 On **UBUNTU** and **WINDOWS**
 
 This is used to control your **Chrome Application**.
